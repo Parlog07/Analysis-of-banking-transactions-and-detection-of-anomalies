@@ -4,7 +4,11 @@ import entity.Account;
 import entity.Client;
 import service.AccountService;
 import service.ClientService;
+import entity.Transaction;
+import entity.TransactionType;
+import service.TransactionService;
 
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Main {
@@ -15,6 +19,7 @@ public class Main {
 
         ClientService clientService = new ClientService();
         AccountService accountService = new AccountService();
+        TransactionService transactionService = new TransactionService();
 
         int choice = -1;
 
@@ -27,6 +32,10 @@ public class Main {
             System.out.println("4. Add savings account");
             System.out.println("5. Show accounts");
             System.out.println("6. Highest balance account");
+            System.out.println("7. Add transaction");
+            System.out.println("8. Show transactions");
+            System.out.println("9. Total transaction amount");
+            System.out.println("10. Suspicious transactions");
             System.out.println("0. Exit");
             System.out.print("Choose: ");
 
@@ -133,6 +142,81 @@ public class Main {
                                         ),
                                         () -> System.out.println("No accounts found.")
                                 );
+                    }
+                    case 7 -> {
+
+                        System.out.print("Amount: ");
+                        double amount = Double.parseDouble(scanner.nextLine());
+
+                        System.out.println("1. DEPOSIT");
+                        System.out.println("2. WITHDRAWAL");
+                        System.out.println("3. TRANSFER");
+                        System.out.print("Type: ");
+
+                        int typeChoice = Integer.parseInt(scanner.nextLine());
+
+                        TransactionType type;
+
+                        if (typeChoice == 1) {
+                            type = TransactionType.DEPOSIT;
+                        } else if (typeChoice == 2) {
+                            type = TransactionType.WITHDRAWAL;
+                        } else {
+                            type = TransactionType.TRANSFER;
+                        }
+
+                        System.out.print("Location: ");
+                        String location = scanner.nextLine();
+
+                        System.out.print("Account ID: ");
+                        int accountId = Integer.parseInt(scanner.nextLine());
+
+                        Transaction transaction = new Transaction(
+                                0,
+                                LocalDateTime.now(),
+                                amount,
+                                type,
+                                location,
+                                accountId
+                        );
+
+                        transactionService.addTransaction(transaction);
+
+                        System.out.println("Transaction added.");
+                    }
+
+                    case 8 -> {
+
+                        for (Transaction transaction : transactionService.getAllTransactions()) {
+                            System.out.println(
+                                    transaction.id() + " | " +
+                                            transaction.date() + " | " +
+                                            transaction.amount() + " | " +
+                                            transaction.type() + " | " +
+                                            transaction.location() + " | Account: " +
+                                            transaction.accountId()
+                            );
+                        }
+                    }
+
+                    case 9 -> {
+
+                        double total = transactionService.getTotalAmount();
+
+                        System.out.println("Total amount: " + total);
+                    }
+
+                    case 10 -> {
+
+                        for (Transaction transaction : transactionService.getSuspiciousTransactions()) {
+
+                            System.out.println(
+                                    "SUSPICIOUS | " +
+                                            transaction.amount() + " | " +
+                                            transaction.type() + " | " +
+                                            transaction.location()
+                            );
+                        }
                     }
 
                     case 0 -> System.out.println("Goodbye.");
